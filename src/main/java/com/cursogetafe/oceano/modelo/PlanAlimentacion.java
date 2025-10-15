@@ -34,7 +34,7 @@ public class PlanAlimentacion {
 	@JoinTable(name = "plan_alimento", joinColumns = @JoinColumn (name= "id_plan"), inverseJoinColumns = @JoinColumn(name = "id_alimento"))
 	private Set <Alimento> alimentos;
 	
-	public void PLanAlimentacion() {
+	public PlanAlimentacion() {
 		
 	}
 	

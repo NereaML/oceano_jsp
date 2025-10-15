@@ -2,7 +2,7 @@ package com.cursogetafe.oceano.persistencia;
 
 import java.util.List;
 
-import javax.persistence.PersistenceException;
+import jakarta.persistence.PersistenceException;
 
 import com.cursogetafe.oceano.config.Config;
 import com.cursogetafe.oceano.modelo.Criatura;

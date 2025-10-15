@@ -9,11 +9,15 @@
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
 
-        <class>com.cursogetafe.tienda.modelo.Criatura</class>
-       
-  
-      
-  
+    <class>com.cursogetafe.oceano.modelo.Alimento</class>
+    <class>com.cursogetafe.oceano.modelo.Criatura</class>
+    <class>com.cursogetafe.oceano.modelo.Cuidador</class>
+    <class>com.cursogetafe.oceano.modelo.Especie</class>
+    <class>com.cursogetafe.oceano.modelo.Habitat</class>
+    <class>com.cursogetafe.oceano.modelo.PlanAlimentacion</class>
+    <class>com.cursogetafe.oceano.modelo.Personal</class>
+    <class>com.cursogetafe.oceano.modelo.Admin</class>
+    <class>com.cursogetafe.oceano.modelo.CuidadorPersonal</class>
     
         <properties>
             <!-- JDBC -->

@@ -7,20 +7,33 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import com.cursogetafe.oceano.modelo.Criatura;
+import com.cursogetafe.oceano.modelo.Especie;
+import com.cursogetafe.oceano.modelo.Habitat;
+import com.cursogetafe.oceano.modelo.TipoEspecie;
 import com.cursogetafe.oceano.persistencia.OceanoDao;
 import com.cursogetafe.oceano.persistencia.OceanoDaoImpl;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import jakarta.persistence.TypedQuery;
 
 public class OceanoImpl implements Oceano{
 	
 
     private OceanoDao oce;
+    private EntityManager em;
+    
 
     public OceanoImpl() {
         oce = new OceanoDaoImpl();
+        
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("oceano");
+        em = emf.createEntityManager();
     }
 
 	@Override
-	public Set<Criatura> getCriaturasPorNombre() throws Exception {
+	public Set<Criatura> getCriaturasPorNombre(String nombreString) throws Exception {
 		Set<Criatura> resu = new TreeSet<>(getComparatorNombre());
         resu.addAll(oce.listarTodas());
         return resu;
@@ -63,5 +76,59 @@ public class OceanoImpl implements Oceano{
 	                               c2.getHabitat().getNombre());
 	        };
 	}
+
+	@Override
+	public Set<Especie> getEspecies() throws Exception {
+		TypedQuery<Especie> query = em.createQuery("SELECT e FROM Especie e", Especie.class);
+        return Set.copyOf(query.getResultList());
+	}
+
+	@Override
+	public Set<Habitat> getHabitats() throws Exception {
+		TypedQuery<Habitat> query = em.createQuery("SELECT h FROM Habitat h", Habitat.class);
+        return Set.copyOf(query.getResultList());
+	}
+
+	@Override
+	public Especie crearEspecieSiNoExiste(String nombreCientifico, TipoEspecie tipo) throws Exception {
+	    Set<Especie> especies = getEspecies();
+	    for(Especie e : especies) {
+	        if(e.getTipo() == tipo) {  
+	            return e;
+	        }
+	    }
+
+	    Especie nueva = new Especie();
+	    nueva.setNombreCientifico(nombreCientifico);
+	    nueva.setEnPeligro(false);
+	    nueva.setTipo(tipo); 
+	    em.getTransaction().begin();
+	    em.persist(nueva);
+	    em.getTransaction().commit();
+	    return nueva;
+	}
+
+
+	
+
+	@Override
+	public Especie getEspeciePorId(int id) throws Exception {
+		return em.find(Especie.class, id);
+	}
+
+	@Override
+	public Habitat getHabitatPorId(int id) throws Exception {
+		return em.find(Habitat.class, id);
+	}
+
+	@Override
+	public void guardarCriatura(Criatura c) throws Exception {
+		em.getTransaction().begin();
+	    em.persist(c);
+	    em.getTransaction().commit();
+		
+	}
+	
+	
 
 }
