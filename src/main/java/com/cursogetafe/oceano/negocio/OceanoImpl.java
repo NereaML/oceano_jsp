@@ -1,7 +1,9 @@
 package com.cursogetafe.oceano.negocio;
 
 import java.text.Collator;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
@@ -32,6 +34,8 @@ public class OceanoImpl implements Oceano{
         em = emf.createEntityManager();
     }
 
+    
+    //criatura
 	@Override
 	public Set<Criatura> getCriaturasPorNombre(String nombreString) throws Exception {
 		Set<Criatura> resu = new TreeSet<>(getComparatorNombre());
@@ -76,19 +80,25 @@ public class OceanoImpl implements Oceano{
 	                               c2.getHabitat().getNombre());
 	        };
 	}
+	
+	@Override
+	public void guardarCriatura(Criatura c) throws Exception {
+		em.getTransaction().begin();
+	    em.persist(c);
+	    em.getTransaction().commit();
+		
+	}
 
+	
+	
+	//Especie
 	@Override
 	public Set<Especie> getEspecies() throws Exception {
 		TypedQuery<Especie> query = em.createQuery("SELECT e FROM Especie e", Especie.class);
         return Set.copyOf(query.getResultList());
 	}
 
-	@Override
-	public Set<Habitat> getHabitats() throws Exception {
-		TypedQuery<Habitat> query = em.createQuery("SELECT h FROM Habitat h", Habitat.class);
-        return Set.copyOf(query.getResultList());
-	}
-
+	
 	@Override
 	public Especie crearEspecieSiNoExiste(String nombreCientifico, TipoEspecie tipo) throws Exception {
 	    Set<Especie> especies = getEspecies();
@@ -110,24 +120,38 @@ public class OceanoImpl implements Oceano{
 
 
 	
-
 	@Override
 	public Especie getEspeciePorId(int id) throws Exception {
 		return em.find(Especie.class, id);
 	}
 
+	
+	
+	//Habitat
+	@Override
+	public Set<Habitat> getHabitats() throws Exception {
+		TypedQuery<Habitat> query = em.createQuery("SELECT h FROM Habitat h", Habitat.class);
+        return Set.copyOf(query.getResultList());
+	}
+
+
+
 	@Override
 	public Habitat getHabitatPorId(int id) throws Exception {
 		return em.find(Habitat.class, id);
 	}
-
-	@Override
-	public void guardarCriatura(Criatura c) throws Exception {
-		em.getTransaction().begin();
-	    em.persist(c);
-	    em.getTransaction().commit();
+	
+	public List<Habitat> getHabitatsOrdenados()throws Exception{
+		Set<Habitat> todosHabitat = getHabitats();
+		List<Habitat> habitatList = new ArrayList<>(todosHabitat);
 		
+		Collator collator = Collator.getInstance(new Locale("es"));
+		habitatList.sort((h1, h2) -> collator.compare(h1.getNombre(), h2.getNombre()));
+		
+		return habitatList;
 	}
+
+
 	
 	
 

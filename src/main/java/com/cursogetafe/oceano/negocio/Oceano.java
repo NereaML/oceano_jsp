@@ -1,6 +1,7 @@
 package com.cursogetafe.oceano.negocio;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 import com.cursogetafe.oceano.modelo.Criatura;
 import com.cursogetafe.oceano.modelo.Especie;
@@ -50,7 +51,8 @@ public interface Oceano {
     /** Guarda criatura */
     void guardarCriatura(Criatura c) throws Exception;
 
-    
+    /** Devuelve una lista ordenada alfabeticamente de habitat */
+    public List<Habitat> getHabitatsOrdenados()throws Exception;
     
 	
     }

@@ -2,5 +2,5 @@ package com.cursogetafe.oceano.modelo;
 
 public enum TipoEspecie {
 
-	PEZ, MAMIFERO, CRUSTACEO, CORAL, OTÁRIDOS
+	PEZ, MAMIFERO, CRUSTACEO, CNIDARIO, OTARIDO, MOLUSCO, REPTIL, PLANTA, CORAL
 }

@@ -2,6 +2,8 @@ package com.cursogetafe.oceano.vista;
 
 import java.io.IOException;
 import java.util.Set;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.TreeSet;
 import java.text.SimpleDateFormat;
@@ -65,14 +67,10 @@ public class Controller extends HttpServlet {
                 try {
                     
                     req.setAttribute("especies", negOceano.getEspecies());
-                    req.setAttribute("habitats", negOceano.getHabitats());
+                    req.setAttribute("habitats", negOceano.getHabitatsOrdenados());
 
-                   
-                    Set<TipoEspecie> tiposEspecie = new TreeSet<>();
-                    for(Especie e : negOceano.getEspecies()) {
-                        tiposEspecie.add(e.getTipo());
-                    }
-                    req.setAttribute("tiposEspecie", tiposEspecie);
+                    req.setAttribute("tiposEspecie", Arrays.stream(TipoEspecie.values()).sorted(Comparator.comparing(Enum::name)).toList());
+  
 
                 } catch(Exception e) {
                     e.printStackTrace();
@@ -87,6 +85,15 @@ public class Controller extends HttpServlet {
         }
     }
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String path = req.getPathInfo();
@@ -109,22 +116,32 @@ public class Controller extends HttpServlet {
                 break;
                 
             case "/alta_criatura":
-                try {
+               
+            	try {
                     nombreComun = req.getParameter("nombreComun");
-                    String fechaStr = req.getParameter("fechaIngreso");
-                    int idEspecie = Integer.parseInt(req.getParameter("idEspecie"));
+                    String fechaStr = req.getParameter("fechaIngreso");                  
+                    String tipoStr = req.getParameter("tipoEspecie");
                     int idHabitat = Integer.parseInt(req.getParameter("idHabitat"));
 
                     Date fechaIngreso = new SimpleDateFormat("dd-MM-yyyy").parse(fechaStr);
 
-                    Especie especie = negOceano.getEspeciePorId(idEspecie);
+                    TipoEspecie tipoEspecie = TipoEspecie.valueOf(tipoStr);
                     Habitat habitat = negOceano.getHabitatPorId(idHabitat);
+
+                    // Busca la especie que coincida con el tipo seleccionado
+                    Especie especie = negOceano.getEspecies().stream().filter(e -> e.getTipo() == tipoEspecie).findFirst().orElse(null);
+
+                    if (especie == null) {
+                        req.setAttribute("error", "No existe una especie para el tipo seleccionado");
+                        req.getRequestDispatcher("/WEB-INF/vista/alta_criatura.jsp").forward(req, resp);
+                        return;
+                    }
 
                     Criatura criatura = new Criatura();
                     criatura.setNombreComun(nombreComun);
                     criatura.setFechaIngreso(fechaIngreso);
-                    criatura.setEspecies(especie);
                     criatura.setHabitat(habitat);
+                    criatura.setEspecies(especie); 
 
                     negOceano.guardarCriatura(criatura);
 
@@ -136,15 +153,8 @@ public class Controller extends HttpServlet {
                 }
 
                 try {
-                    req.setAttribute("especies", negOceano.getEspecies());
                     req.setAttribute("habitats", negOceano.getHabitats());
-                    
-                    Set<TipoEspecie> tiposEspecie = new TreeSet<>();
-                    for(Especie e : negOceano.getEspecies()) {
-                        tiposEspecie.add(e.getTipo());
-                    }
-                    req.setAttribute("tiposEspecie", tiposEspecie);
-
+                    req.setAttribute("tiposEspecie", Arrays.stream(TipoEspecie.values()).sorted(Comparator.comparing(Enum::name)).toList());
                 } catch(Exception e) {
                     e.printStackTrace();
                     req.setAttribute("error", "No se pudieron cargar las listas de especies o hábitats");
@@ -152,6 +162,7 @@ public class Controller extends HttpServlet {
 
                 req.getRequestDispatcher("/WEB-INF/vista/alta_criatura.jsp").forward(req, resp);
                 break;
+            
         }
     }
 
