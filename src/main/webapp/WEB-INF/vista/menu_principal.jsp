@@ -18,6 +18,7 @@
 		<ul> 
 			<li><a href="${home}/listado_criaturas">Criaturas</a></li>
 			<li><a href="${home}/alta_criatura">Crear Criatura</a></li>
+			<li><a href="${home}/eliminar_criatura">Eliminar Criatura</a></li>
 			
 			<hr />
 			<li><a href="${home}/registro_cuidador">Crear Cuidador</a></li>

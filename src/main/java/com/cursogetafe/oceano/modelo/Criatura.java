@@ -1,7 +1,9 @@
 package com.cursogetafe.oceano.modelo;
 import java.util.Date;
 import java.util.Objects;
+import java.util.Set;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,7 +12,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -39,6 +43,13 @@ public class Criatura {
 	@ManyToOne
 	@JoinColumn(name ="id_especie")
 	private Especie especies;
+	
+	@OneToMany(mappedBy = "criatura", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<PlanAlimentacion> planesAlimentacion;
+
+	@ManyToMany(mappedBy = "criaturas")
+	private Set<Cuidador> cuidadores;
+
 	
 	public Criatura() {
 		
@@ -95,6 +106,23 @@ public class Criatura {
 	
 	
 	
+	public Set<PlanAlimentacion> getPlanesAlimentacion() {
+		return planesAlimentacion;
+	}
+
+	public void setPlanesAlimentacion(Set<PlanAlimentacion> planesAlimentacion) {
+		this.planesAlimentacion = planesAlimentacion;
+	}
+	
+	
+
+	public Set<Cuidador> getCuidadores() {
+		return cuidadores;
+	}
+
+	public void setCuidadores(Set<Cuidador> cuidadores) {
+		this.cuidadores = cuidadores;
+	}
 
 	@Override
 	public int hashCode() {

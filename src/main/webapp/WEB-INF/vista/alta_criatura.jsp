@@ -18,8 +18,14 @@
 	<div id="contPrincipal">
 	
 		<form id="form_criatura" action="${home}/alta_criatura" method="post">
+			
 			<input id="nombreComun" type="text" name="nombreComun" placeholder="Nombre" required>
-			<input id="fechaIngreso" type="text" name="fechaIngreso" placeholder="Fecha de ingreso" required>
+			
+			<input type="text" name="nombreCientifico" placeholder="Nombre científico">
+			<select name="enPeligro">
+  				<option value="1">Sí</option>
+  				<option value="0">No</option>
+			</select>
 			
 			<!-- Selección de tipo de especie -->
 			<select id="tipoEspecie" name="tipoEspecie" required>
@@ -28,6 +34,7 @@
 					<option value="${tipo}">${tipo}</option>
 				</c:forEach>
 			</select>
+			
 
 			<!-- Selección de hábitat -->
 			<select id="idHabitat" name="idHabitat" required>
@@ -36,6 +43,8 @@
 					<option value="${habitat.idHabitat}">${habitat.nombre}</option>
 				</c:forEach>
 			</select>
+			
+			<input id="fechaIngreso" type="text" name="fechaIngreso" placeholder="Fecha de ingreso" required>
 			
 			<button type="submit">Crear</button>
 		</form>

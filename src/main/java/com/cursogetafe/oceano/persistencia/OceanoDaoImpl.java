@@ -85,9 +85,11 @@ public class OceanoDaoImpl implements OceanoDao{
 		em.getTransaction().begin();
 		Criatura criatura = em.find(Criatura.class, idCriatura);
 		if( criatura != null) {
+			criatura.getCuidadores().forEach(c -> c.getCriaturas().remove(criatura));
 			em.remove(criatura);
 		}
 		em.getTransaction().commit();
+		em.close();
 		
 	}
 

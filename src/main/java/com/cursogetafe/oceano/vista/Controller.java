@@ -65,10 +65,8 @@ public class Controller extends HttpServlet {
                 
             case "/alta_criatura":
                 try {
-                    
-                    req.setAttribute("especies", negOceano.getEspecies());
+                 
                     req.setAttribute("habitats", negOceano.getHabitatsOrdenados());
-
                     req.setAttribute("tiposEspecie", Arrays.stream(TipoEspecie.values()).sorted(Comparator.comparing(Enum::name)).toList());
   
 
@@ -79,9 +77,18 @@ public class Controller extends HttpServlet {
 
                 req.getRequestDispatcher("/WEB-INF/vista/alta_criatura.jsp").forward(req, resp);
                 break;
+                
+            case "/eliminar_criatura":
+                req.getRequestDispatcher("/WEB-INF/vista/eliminar_criatura.jsp").forward(req, resp);
+                break;
+
+
 
             case "/cerrar_sesion":    
                 break;
+                
+                
+                
         }
     }
 
@@ -102,6 +109,7 @@ public class Controller extends HttpServlet {
         if(!sesionIniciada(sesion)) return;
 
         switch (path){
+        
             case "/listado_criaturas":
                 String nombreComun = req.getParameter("nombreComun"); 
                 Set<Criatura> cria = null;
@@ -115,33 +123,35 @@ public class Controller extends HttpServlet {
                 req.getRequestDispatcher("/WEB-INF/vista/listado_criaturas.jsp").forward(req, resp);
                 break;
                 
+                
             case "/alta_criatura":
-               
-            	try {
+                try {
                     nombreComun = req.getParameter("nombreComun");
-                    String fechaStr = req.getParameter("fechaIngreso");                  
+                    String nombreCientifico = req.getParameter("nombreCientifico");
+                    boolean enPeligro = "1".equals(req.getParameter("enPeligro"));
                     String tipoStr = req.getParameter("tipoEspecie");
                     int idHabitat = Integer.parseInt(req.getParameter("idHabitat"));
+                    String fechaStr = req.getParameter("fechaIngreso");
 
                     Date fechaIngreso = new SimpleDateFormat("dd-MM-yyyy").parse(fechaStr);
 
                     TipoEspecie tipoEspecie = TipoEspecie.valueOf(tipoStr);
                     Habitat habitat = negOceano.getHabitatPorId(idHabitat);
 
-                    // Busca la especie que coincida con el tipo seleccionado
-                    Especie especie = negOceano.getEspecies().stream().filter(e -> e.getTipo() == tipoEspecie).findFirst().orElse(null);
+                    // Añadir datos de la especie 
+                    Especie especie = new Especie();
+                    especie.setTipo(tipoEspecie);
+                    especie.setNombreCientifico(nombreCientifico);
+                    especie.setEnPeligro(enPeligro);
 
-                    if (especie == null) {
-                        req.setAttribute("error", "No existe una especie para el tipo seleccionado");
-                        req.getRequestDispatcher("/WEB-INF/vista/alta_criatura.jsp").forward(req, resp);
-                        return;
-                    }
+                    negOceano.guardarEspecie(especie); 
 
+                    // Crear la criatura asociando la especie creada
                     Criatura criatura = new Criatura();
                     criatura.setNombreComun(nombreComun);
                     criatura.setFechaIngreso(fechaIngreso);
                     criatura.setHabitat(habitat);
-                    criatura.setEspecies(especie); 
+                    criatura.setEspecies(especie);
 
                     negOceano.guardarCriatura(criatura);
 
@@ -151,17 +161,75 @@ public class Controller extends HttpServlet {
                     e.printStackTrace();
                     req.setAttribute("error", "No se pudo crear la criatura");
                 }
-
+                
                 try {
-                    req.setAttribute("habitats", negOceano.getHabitats());
-                    req.setAttribute("tiposEspecie", Arrays.stream(TipoEspecie.values()).sorted(Comparator.comparing(Enum::name)).toList());
-                } catch(Exception e) {
+                    
+                    req.setAttribute("habitats", negOceano.getHabitatsOrdenados());
+                    req.setAttribute("tiposEspecie", Arrays.stream(TipoEspecie.values())
+                            .sorted(Comparator.comparing(Enum::name)).toList());
+                } catch (Exception e) {
                     e.printStackTrace();
-                    req.setAttribute("error", "No se pudieron cargar las listas de especies o hábitats");
                 }
 
                 req.getRequestDispatcher("/WEB-INF/vista/alta_criatura.jsp").forward(req, resp);
                 break;
+                
+                
+            case "/eliminar_criatura":
+                if (req.getMethod().equalsIgnoreCase("GET")) {
+                    // Cargar todas las criaturas para mostrar en la tabla o select
+                    try {
+                        Set<Criatura> todas = negOceano.getCriaturasPorNombre(""); // "" devuelve todas
+                        req.setAttribute("criaturas", todas);
+                    } catch(Exception e) {
+                        e.printStackTrace();
+                        req.setAttribute("error", "Error cargando listado de criaturas");
+                    }
+                    req.getRequestDispatcher("/WEB-INF/vista/eliminar_criatura.jsp").forward(req, resp);
+                } else if (req.getMethod().equalsIgnoreCase("POST")) {
+                    try {
+                        // Obtener el id de la criatura a eliminar
+                        int idCriatura = Integer.parseInt(req.getParameter("idCriatura"));
+
+                        // Buscar la criatura
+                        Criatura criatura = negOceano.getBuscarPorId(idCriatura);
+
+                        // Romper relaciones con cuidadores
+                        if(criatura.getCuidadores() != null) {
+                            criatura.getCuidadores().forEach(c -> c.getCriaturas().remove(criatura));
+                        }
+
+                        // Romper relaciones con planes de alimentación
+                        if(criatura.getPlanesAlimentacion() != null) {
+                            criatura.getPlanesAlimentacion().clear();
+                        }
+
+                        // Llamar al método para eliminar la criatura
+                        negOceano.eliminarCriatura(idCriatura);
+
+                        req.setAttribute("mensaje", "Criatura eliminada correctamente");
+
+                    } catch(Exception e) {
+                        e.printStackTrace();
+                        req.setAttribute("error", "No se pudo eliminar la criatura");
+                    }
+
+                    // Recargar listado de criaturas tras eliminar
+                    try {
+                        Set<Criatura> todas = negOceano.getCriaturasPorNombre("");
+                        req.setAttribute("criaturas", todas);
+                    } catch(Exception e) {
+                        e.printStackTrace();
+                        req.setAttribute("error", "Error cargando listado de criaturas");
+                    }
+
+                    req.getRequestDispatcher("/WEB-INF/vista/eliminar_criatura.jsp").forward(req, resp);
+                }
+                break;
+
+
+
+
             
         }
     }

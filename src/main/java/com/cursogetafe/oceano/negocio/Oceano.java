@@ -53,6 +53,15 @@ public interface Oceano {
 
     /** Devuelve una lista ordenada alfabeticamente de habitat */
     public List<Habitat> getHabitatsOrdenados()throws Exception;
+
+    /** Guarda una especie */
+	void guardarEspecie(Especie especie) throws Exception ;
+
+	/** Busca criatura por id */
+	Criatura getBuscarPorId(int idCriatura);
+
+	/** Eliminar criatura por id */
+	void eliminarCriatura(int idCriatura);
     
 	
     }

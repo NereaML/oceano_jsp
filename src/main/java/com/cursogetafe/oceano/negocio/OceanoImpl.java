@@ -36,6 +36,42 @@ public class OceanoImpl implements Oceano{
 
     
     //criatura
+    
+	@Override
+	public Criatura getBuscarPorId(int idCriatura) {
+		return em.find(Criatura.class, idCriatura);
+	}
+	
+	@Override
+	public void eliminarCriatura(int idCriatura) {
+	    
+	    Criatura criatura = em.find(Criatura.class, idCriatura);
+
+	    if (criatura != null) {
+	        // Elimina la criatura de los cuidadores
+	        criatura.getCuidadores().forEach(c -> c.getCriaturas().remove(criatura));
+
+	        // Limpia la lista
+	        criatura.getCuidadores().clear();
+
+	        //Elimina la criatura
+	        em.remove(criatura);
+	    } else {
+	        System.out.println("La criatura con id " + idCriatura + " no existe");
+	    }
+	}
+
+	
+	@Override
+	public void guardarCriatura(Criatura c) throws Exception {
+		em.getTransaction().begin();
+	    em.persist(c);
+	    em.getTransaction().commit();
+		
+	}
+	
+
+	
 	@Override
 	public Set<Criatura> getCriaturasPorNombre(String nombreString) throws Exception {
 		Set<Criatura> resu = new TreeSet<>(getComparatorNombre());
@@ -81,13 +117,7 @@ public class OceanoImpl implements Oceano{
 	        };
 	}
 	
-	@Override
-	public void guardarCriatura(Criatura c) throws Exception {
-		em.getTransaction().begin();
-	    em.persist(c);
-	    em.getTransaction().commit();
-		
-	}
+
 
 	
 	
@@ -124,6 +154,16 @@ public class OceanoImpl implements Oceano{
 	public Especie getEspeciePorId(int id) throws Exception {
 		return em.find(Especie.class, id);
 	}
+	
+	@Override
+	public void guardarEspecie(Especie especie) throws Exception {
+			em.getTransaction().begin();
+		    em.persist(especie);
+		    em.getTransaction().commit();
+			
+	}
+		
+	
 
 	
 	
@@ -152,7 +192,8 @@ public class OceanoImpl implements Oceano{
 	}
 
 
-	
-	
+
+
+
 
 }
